@@ -89,7 +89,7 @@ function create() {
   bullets.setAll('checkWorldBounds', true);
 
   scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
-  scoreText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
+  startText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
   game.input.onTap.addOnce(start_game, this);
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -104,6 +104,7 @@ function update() {
   game.physics.arcade.collide(rubies, platforms);
   _(pinkies).each(function(pinky){
     game.physics.arcade.collide(pinky.pinky, platforms);
+    game.physics.arcade.collide(pinky.pinky, player);
     game.physics.arcade.overlap(player, pinky.pinky, pinkyCrash, null, that);
   });
   game.physics.arcade.overlap(player, rubies, collectStar, null, this);
@@ -147,7 +148,7 @@ function update() {
 }
 
 function start_game(){
-  scoreText.visible = false;
+  startText.visible = false;
   game.paused = false;
 }
 
