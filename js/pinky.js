@@ -5,7 +5,8 @@ Pinky = function (game, player) {
 
     this.game = game;
     this.player = player;
-    this.velocity = _.random(0, 100);;
+    this.velocity = _.random(0, 100);
+    this.alive = true;
 
     this.pinky = game.add.sprite(x, y, 'pinky');
 

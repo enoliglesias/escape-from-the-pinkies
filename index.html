@@ -22,15 +22,20 @@ var platforms,
     player,
     cursors,
     rubies,
+    bullets,
+    fireButton,
+    startText,
     scoreText;
 
 var score = 0;
 var pinkies = [];
+var bulletTime = 0;
 
 function preload() {
   game.load.image('sky', 'assets/background02.png');
   game.load.image('ground', 'assets/platform.png');
   game.load.image('ruby', 'assets/ruby.png');
+  game.load.image('bullet', 'assets/bullet.gif');
   game.load.spritesheet('pinky', 'assets/pinky.png', 32, 32);
   game.load.spritesheet('dude', 'assets/enolsheet2.png', 45.5, 64);
 
@@ -63,7 +68,7 @@ function create() {
   game.physics.arcade.enable(player);
 
   player.body.bounce.y = 0.2;
-  player.body.gravity.y = 400;
+  player.body.gravity.y = 600;
   player.body.collideWorldBounds = true;
 
   player.animations.add('left', [0, 1, 2], 10, true);
@@ -72,8 +77,23 @@ function create() {
   create_rubies();
   create_pinkies();
 
+  // Bullets creation
+  //  Our bullet group
+  bullets = game.add.group();
+  bullets.enableBody = true;
+  bullets.physicsBodyType = Phaser.Physics.ARCADE;
+  bullets.createMultiple(100, 'bullet', 0, false);
+  bullets.setAll('anchor.x', 0.5);
+  bullets.setAll('anchor.y', 0.5);
+  bullets.setAll('outOfBoundsKill', true);
+  bullets.setAll('checkWorldBounds', true);
+
   scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
+  scoreText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
+  game.input.onTap.addOnce(start_game, this);
   cursors = game.input.keyboard.createCursorKeys();
+  fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  game.paused = true;
 }
 
 
@@ -89,52 +109,66 @@ function update() {
   game.physics.arcade.overlap(player, rubies, collectStar, null, this);
 
   _(pinkies).each(function(pinky){
-    pinky.update();
+    if (pinky.alive){
+      game.physics.arcade.overlap(bullets, pinky.pinky, bulletHitEnemy, null, this);
+      pinky.update();
+    }
   });
 
-   player.body.velocity.x = 0;
+  player.body.velocity.x = 0;
 
-   if (cursors.left.isDown)
-   {
-       player.body.velocity.x = -150;
-       player.animations.play('left');
-   }
-   else if (cursors.right.isDown)
-   {
-       player.body.velocity.x = 150;
-       player.animations.play('right');
-   }
-   else
-   {
-       player.animations.stop();
-       player.frame = 3;
-   }
+  if (cursors.left.isDown)
+  {
+     player.body.velocity.x = -150;
+     player.animations.play('left');
+  }
+  else if (cursors.right.isDown)
+  {
+     player.body.velocity.x = 150;
+     player.animations.play('right');
+  }
+  else
+  {
+     player.animations.stop();
+     player.frame = 3;
+  }
 
-   if (cursors.up.isDown && player.body.touching.down)
-   {
-       player.body.velocity.y = -350;
-   }
+
+  //  Firing?
+  if (fireButton.isDown)
+  {
+     fireBullet();
+  }
+
+  if (cursors.up.isDown && player.body.touching.down)
+  {
+     player.body.velocity.y = -500;
+  }
+}
+
+function start_game(){
+  scoreText.visible = false;
+  game.paused = false;
 }
 
 function create_rubies(){
   rubies = game.add.group();
 
-      rubies.enableBody = true;
-      //  Here we'll create 12 of them evenly spaced apart
-      for (var i = 0; i < 12; i++)
-      {
-          //  Create a ruby inside of the 'rubies' group
-          var x = game.world.randomX;
-          var y = game.world.randomY;
-          var ruby = rubies.create(x, y, 'ruby');
+  rubies.enableBody = true;
+  //  Here we'll create 12 of them evenly spaced apart
+  for (var i = 0; i < 12; i++)
+  {
+      //  Create a ruby inside of the 'rubies' group
+      var x = game.world.randomX;
+      var y = game.world.randomY;
+      var ruby = rubies.create(x, y, 'ruby');
 
-          //  Let gravity do its thing
-          // ruby.body.gravity.y = 6;
+      //  Let gravity do its thing
+      // ruby.body.gravity.y = 6;
 
-          //  This just gives each ruby a slightly random bounce value
-          ruby.body.bounce.y = 0.7 + Math.random() * 0.2;
-      }
-
+      //  This just gives each ruby a slightly random bounce value
+      ruby.body.bounce.y = 0.7 + Math.random() * 0.2;
+  }
 }
 
 function create_pinkies(){
@@ -153,6 +187,34 @@ function collectStar (player, ruby) {
 
 function pinkyCrash(player, pinky){
   //player.kill();
+}
+
+function bulletHitEnemy (pinky, bullet) {
+  bullet.kill();
+  pinky.kill();
+}
+
+function fireBullet () {
+
+  //  To avoid them being allowed to fire too fast we set a time limit
+  if (game.time.now > bulletTime)
+  {
+    //  Grab the first bullet we can from the pool
+    bullet = bullets.getFirstExists(false);
+
+    if (bullet)
+    {
+      //  And fire it
+      bullet.reset(player.x + 15, player.y + 35);
+      if (player.body.velocity.x < 0) {
+        bullet.body.velocity.x = -400;
+      }else{
+        bullet.body.velocity.x = 400;
+      }
+      bulletTime = game.time.now + 300;
+    }
+  }
+
 }
 
 
