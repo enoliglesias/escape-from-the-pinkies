@@ -24,6 +24,7 @@ var platforms,
     rubies,
     bullets,
     fireButton,
+    startText,
     scoreText;
 
 var score = 0;
@@ -88,9 +89,11 @@ function create() {
   bullets.setAll('checkWorldBounds', true);
 
   scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
+  scoreText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
+  game.input.onTap.addOnce(start_game, this);
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
+  game.paused = true;
 }
 
 
@@ -141,6 +144,11 @@ function update() {
   {
      player.body.velocity.y = -500;
   }
+}
+
+function start_game(){
+  scoreText.visible = false;
+  game.paused = false;
 }
 
 function create_rubies(){
