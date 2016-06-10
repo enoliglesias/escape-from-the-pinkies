@@ -1,14 +1,17 @@
-Pinky = function (game, player) {
+Pinky = function (game, player, type) {
 
     var x = game.world.randomX;
     var y = game.world.randomY;
 
+
+    this.badboy = type == "badboy" ? true : false;
+    var color = this.badboy ? "pinky" : "greeny";
     this.game = game;
     this.player = player;
     this.velocity = _.random(0, 100);
     this.alive = true;
-
-    this.pinky = game.add.sprite(x, y, 'pinky');
+    this.type = type
+    this.pinky = game.add.sprite(x, y, color);
 
     this.game.physics.arcade.enable(this.pinky);
 
