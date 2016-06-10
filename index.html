@@ -102,7 +102,7 @@ function update() {
       game.physics.arcade.overlap(player, pinky.pinky, pinkyCrash, null, that);
     }
   });
-  game.physics.arcade.overlap(player, rubies, collectStar, null, this);
+  game.physics.arcade.overlap(player, rubies, collectRuby, null, this);
 
   _(pinkies).each(function(pinky){
     if (pinky.alive){
@@ -160,12 +160,6 @@ function create_rubies(){
       var x = game.world.randomX;
       var y = game.world.randomY;
       var ruby = rubies.create(x, y, 'ruby');
-
-      //  Let gravity do its thing
-      // ruby.body.gravity.y = 6;
-
-      //  This just gives each ruby a slightly random bounce value
-      ruby.body.bounce.y = 0.7 + Math.random() * 0.2;
   }
 }
 
@@ -214,14 +208,18 @@ function add_lives(){
 }
 
 
-function collectStar (player, ruby) {
+function collectRuby (player, ruby) {
     ruby.kill();
+    var x = game.world.randomX;
+    var y = game.world.randomY;
+    var ruby = rubies.create(x, y, 'ruby');
     score += 10;
     scoreText.text = 'Score: ' + score;
 }
 
 function pinkyCrash(player, pinky){
   pinky.kill();
+  pinkies.push(new Pinky(game, player, "badboy"));
   live = lives.getFirstAlive();
 
   if (live)
@@ -243,6 +241,9 @@ function pinkyCrash(player, pinky){
 function bulletHitEnemy (pinky, bullet) {
   bullet.kill();
   pinky.kill();
+  score += 30;
+  scoreText.text = 'Score: ' + score;
+  pinkies.push(new Pinky(game, player, "badboy"));
 }
 
 function fireBullet () {
