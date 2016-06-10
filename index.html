@@ -30,13 +30,16 @@ var platforms,
 var score = 0;
 var pinkies = [];
 var bulletTime = 0;
+var lives;
 
 function preload() {
   game.load.image('sky', 'assets/background02.png');
   game.load.image('ground', 'assets/platform.png');
   game.load.image('ruby', 'assets/ruby.png');
   game.load.image('bullet', 'assets/bullet.gif');
+  game.load.image('heart', 'assets/heart.png');
   game.load.spritesheet('pinky', 'assets/pinky.png', 32, 32);
+  game.load.spritesheet('greeny', 'assets/greeny.png', 32, 32);
   game.load.spritesheet('dude', 'assets/enolsheet2.png', 45.5, 64);
 
 }
@@ -76,21 +79,10 @@ function create() {
 
   create_rubies();
   create_pinkies();
+  add_lives();
+  create_bullets();
+  create_texts();
 
-  // Bullets creation
-  //  Our bullet group
-  bullets = game.add.group();
-  bullets.enableBody = true;
-  bullets.physicsBodyType = Phaser.Physics.ARCADE;
-  bullets.createMultiple(100, 'bullet', 0, false);
-  bullets.setAll('anchor.x', 0.5);
-  bullets.setAll('anchor.y', 0.5);
-  bullets.setAll('outOfBoundsKill', true);
-  bullets.setAll('checkWorldBounds', true);
-
-  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
-  startText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
-  game.input.onTap.addOnce(start_game, this);
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   game.paused = true;
@@ -104,14 +96,19 @@ function update() {
   game.physics.arcade.collide(rubies, platforms);
   _(pinkies).each(function(pinky){
     game.physics.arcade.collide(pinky.pinky, platforms);
-    game.physics.arcade.collide(pinky.pinky, player);
-    game.physics.arcade.overlap(player, pinky.pinky, pinkyCrash, null, that);
+    if (!pinky.badboy){
+      game.physics.arcade.collide(pinky.pinky, player);
+    }else{
+      game.physics.arcade.overlap(player, pinky.pinky, pinkyCrash, null, that);
+    }
   });
   game.physics.arcade.overlap(player, rubies, collectStar, null, this);
 
   _(pinkies).each(function(pinky){
     if (pinky.alive){
-      game.physics.arcade.overlap(bullets, pinky.pinky, bulletHitEnemy, null, this);
+      if (pinky.badboy){
+        game.physics.arcade.overlap(bullets, pinky.pinky, bulletHitEnemy, null, this);
+      }
       pinky.update();
     }
   });
@@ -175,7 +172,44 @@ function create_rubies(){
 function create_pinkies(){
   for (var i = 0; i < 5; i++)
   {
-      pinkies.push(new Pinky(game, player));
+      pinkies.push(new Pinky(game, player, "badboy"));
+  }
+  for (var i = 0; i < 2; i++)
+  {
+      pinkies.push(new Pinky(game, player, "goodboy"));
+  }
+}
+
+function create_bullets(){
+  // Bullets creation
+  //  Our bullet group
+  bullets = game.add.group();
+  bullets.enableBody = true;
+  bullets.physicsBodyType = Phaser.Physics.ARCADE;
+  bullets.createMultiple(100, 'bullet', 0, false);
+  bullets.setAll('anchor.x', 0.5);
+  bullets.setAll('anchor.y', 0.5);
+  bullets.setAll('outOfBoundsKill', true);
+  bullets.setAll('checkWorldBounds', true);
+}
+
+function create_texts(){
+  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
+  startText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
+  game.input.onTap.addOnce(start_game, this);
+  stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { align: 'center', font: '84px Arial', fill: '#fff' });
+  stateText.anchor.setTo(0.5, 0.5);
+  stateText.visible = false;
+}
+
+function add_lives(){
+  lives = game.add.group();
+
+  for (var i = 0; i < 3; i++)
+  {
+    var heart = lives.create(game.world.width - 100 + (30 * i), 60, 'heart');
+    heart.anchor.setTo(0.5, 0.5);
+    heart.alpha = 0.8;
   }
 }
 
@@ -187,7 +221,23 @@ function collectStar (player, ruby) {
 }
 
 function pinkyCrash(player, pinky){
-  //player.kill();
+  pinky.kill();
+  live = lives.getFirstAlive();
+
+  if (live)
+  {
+    live.kill();
+  }
+
+  // When the player dies
+  if (lives.countLiving() < 1)
+  {
+    player.kill();
+
+    stateText.text=" GAME OVER \n Refresh to restart";
+    stateText.visible = true;
+    game.paused = true;
+  }
 }
 
 function bulletHitEnemy (pinky, bullet) {
