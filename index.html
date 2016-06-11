@@ -158,7 +158,7 @@ function create_rubies(){
   {
       //  Create a ruby inside of the 'rubies' group
       var x = game.world.randomX;
-      var y = game.world.randomY;
+      var y = _.random(1, 500);
       var ruby = rubies.create(x, y, 'ruby');
   }
 }
@@ -211,7 +211,7 @@ function add_lives(){
 function collectRuby (player, ruby) {
     ruby.kill();
     var x = game.world.randomX;
-    var y = game.world.randomY;
+    var y = _.random(1, 500);
     var ruby = rubies.create(x, y, 'ruby');
     score += 10;
     scoreText.text = 'Score: ' + score;
