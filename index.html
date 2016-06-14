@@ -31,6 +31,7 @@ var score = 0;
 var pinkies = [];
 var bulletTime = 0;
 var lives;
+var background;
 
 function preload() {
   game.load.image('sky', 'assets/background02.png');
@@ -46,7 +47,8 @@ function preload() {
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
-  game.add.sprite(0, 0, 'sky');
+  background = game.add.tileSprite(0, 0, 800, 600, 'sky');
+
 
   platforms = game.add.group();
 
@@ -91,6 +93,7 @@ function create() {
 
 function update() {
   var that = this;
+  background.tilePosition.x -= 6;
 
   game.physics.arcade.collide(player, platforms);
   game.physics.arcade.collide(rubies, platforms);
