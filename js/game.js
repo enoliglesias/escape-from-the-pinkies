@@ -76,7 +76,6 @@ function create() {
 
 function update() {
   var that = this;
-  background.tilePosition.x -= 6;
 
   game.physics.arcade.collide(player, platforms);
   game.physics.arcade.collide(rubies, platforms);
