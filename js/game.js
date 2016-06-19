@@ -176,7 +176,7 @@ function create_texts(){
   scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000', stroke: '#FFF', strokeThickness: 6 });
   startText = game.add.text(150, 200, 'Click to start\nArrows to move. Spacebar to shoot', { fontSize: '80px', fill: '#000', stroke: '#FFF', strokeThickness: 6, align: 'center' });
   game.input.onTap.addOnce(start_game, this);
-  stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { align: 'center', font: '84px Arial', fill: '#fff' });
+  stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { align: 'center', font: '84px Arial', fill: '#fff', stroke: '#000', strokeThickness: 6 });
   stateText.anchor.setTo(0.5, 0.5);
   stateText.visible = false;
 }
