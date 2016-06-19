@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  background-color: #000;
+}
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.web {
+  float: left;
+}
+
+.twitter {
+  float: right;
+}
