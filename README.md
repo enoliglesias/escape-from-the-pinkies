@@ -2,6 +2,6 @@
 
 This is my very first try to make a game with [phaser](http://phaser.io/) framework :)
 
-# You wanna play?
+# Do you wanna play?
 
 http://undefinedmethod.com/escape-from-the-pinkies/
